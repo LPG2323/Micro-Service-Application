@@ -1,0 +1,6 @@
+projectKey=Front-end
+serverUrl=http://localhost:49160
+serverVersion=26.2.0.119303
+dashboardUrl=http://localhost:49160/dashboard?id=Front-end
+ceTaskId=7ed6505e-bed2-4a8f-852a-9fc6b61cc4ce
+ceTaskUrl=http://localhost:49160/api/ce/task?id=7ed6505e-bed2-4a8f-852a-9fc6b61cc4ce

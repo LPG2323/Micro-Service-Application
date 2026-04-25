@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <style>
+        body { font-family: "Arial", sans-serif;}
+        .header { text-align: center; }
+        .header h1 { color: #000; margin: 0; font-weight:bold; text-decoration:underline;}
+        .footer {
+          margin-top: 50px;
+          font-size: 12px;
+          text-align: center;
+          color: gray;
+        }
+        .img{
+             width: 420px;
+            height: 245px;
+        }
+        .navbar{
+            margin:0;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+<div class="navbar">
+    <img th:src="${logoPath}" alt="logo" class="img"/>
+</div>
+<div class="header">
+    <h1>Attestation d'inscription</h1>
+    <p>Année academique: <span th:text="${registration.academicYearLabel}"></span></p>
+</div>
+
+<div class="">
+
+    <!--    <h2 th:text="${student != null ? student.firstname  : 'Unknown Student'}"></h2>-->
+    <div>
+        <p>Ce présent document atteste que M/Mme <b><span th:text="${(student?.firstName + ' ' + student?.lastName) ?: 'Inconnu'}"></span></b> a bien été inscrit(e) au sein de notre établissement pour l'année académique.</p>
+        <br/>
+    </div>
+    <div class="registration-details">
+        <h3>Détails de l'inscription</h3>
+        <p><b>N° inscription :</b> <span th:text="${registration.registrationNumber}"></span></p>
+        <p><b>Matricule :</b> <span th:text="${registration.matricule}"></span></p>
+        <p><b>Niveau :</b> <span th:text="${registration.level}"></span></p>
+        <p><b>Spécialité :</b> <span th:text="${registration.specialityLabel}"></span></p>
+    </div>
+
+    <div class="registration-date">
+        <p><b>Date d'inscription :</b>
+            <span th:text="${#temporals.format(registration.dateOfRegistration, 'dd-MM-yyyy HH:mm')}"></span>
+        </p>
+    </div>
+    <br/>
+    <!--    <h2 th:text="${(student?.firstName + ' ' + student?.lastName) ?: 'Unknown Student'}"></h2>-->
+    <!--    <p><b>N° inscription:</b> <span th:text="${registration.registrationNumber}"></span></p>-->
+    <!--    <p><b>Matricule:</b> <span th:text="${registration.matricule}"></span></p>-->
+    <!--    <p><b>Niveau:</b> <span th:text="${registration.level}"></span></p>-->
+    <!--    <p><b>Specialité:</b> <span th:text="${registration.specialityLabel}"></span></p>-->
+</div>
+
+
+<div class="footer">
+    &#169; ENSITECH ETS - Generated on <span th:text="${today}"></span>
+</div>
+</body>
+</html>
