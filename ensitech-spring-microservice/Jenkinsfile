@@ -2,117 +2,39 @@ pipeline {
 
     agent any
 
-    environment {
+environment {
 
-        IMAGE_NAME = 'maitrelpg/user-service'
+    IMAGE_NAME = 'maitrelpg/user-service'
 
-        IMAGE_TAG = "${BUILD_NUMBER}"
+    IMAGE_TAG = "${BUILD_NUMBER}"
+
+}
+
+stages {
+
+    stage('Checkout Code') {
+
+        steps {
+
+            deleteDir()
+
+            checkout scm
+
+        }
 
     }
 
-    stages {
+    stage('Build JAR') {
 
-        stage('Checkout Code') {
+        steps {
 
-            steps {
-
-                deleteDir()
-
-                checkout scm
-
-            }
-
-        }
-
-        stage('Build JAR') {
-
-            steps {
-
-                dir('user-service') {
-
-                    sh '''
-
-                        chmod +x ../mvnw
-
-                        ../mvnw clean package -DskipTests
-
-                    '''
-
-                }
-
-            }
-
-        }
-
-        stage('Run Tests') {
-
-            steps {
-
-                dir('user-service') {
-
-                    sh '../mvnw test || true'
-
-                }
-
-            }
-
-        }
-
-        stage('Build Docker Image') {
-
-            steps {
-
-                dir('user-service') {
-
-                    sh '''
-
-                        docker build -t $IMAGE_NAME:$IMAGE_TAG .
-
-                        docker tag $IMAGE_NAME:$IMAGE_TAG $IMAGE_NAME:latest
-
-                    '''
-
-                }
-
-            }
-
-        }
-
-        stage('Login to Docker Hub') {
-
-            steps {
-
-                withCredentials([usernamePassword(
-
-                    credentialsId: 'dockerhub-credentials',
-
-                    usernameVariable: 'DOCKERHUB_USERNAME',
-
-                    passwordVariable: 'DOCKERHUB_PASSWORD'
-
-                )]) {
-
-                    sh '''
-
-                        echo "$DOCKERHUB_PASSWORD" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
-
-                    '''
-
-                }
-
-            }
-
-        }
-
-        stage('Push Docker Image') {
-
-            steps {
+            dir('ensitech-spring-microservice/user-service') {
 
                 sh '''
 
-                    docker push $IMAGE_NAME:$IMAGE_TAG
+                    chmod +x ../mvnw
 
-                    docker push $IMAGE_NAME:latest
+                    ../mvnw clean package -DskipTests
 
                 '''
 
@@ -122,28 +44,106 @@ pipeline {
 
     }
 
-    post {
+    stage('Run Tests') {
 
-        always {
+        steps {
 
-            archiveArtifacts artifacts: 'user-service/target/*.jar', fingerprint: true
+            dir('ensitech-spring-microservice/user-service') {
 
-            cleanWs()
+                sh '../mvnw test || true'
 
-        }
-
-        success {
-
-            echo 'Backend pipeline completed successfully.'
-
-        }
-
-        failure {
-
-            echo 'Backend pipeline failed.'
+            }
 
         }
 
     }
+
+    stage('Build Docker Image') {
+
+        steps {
+
+            dir('ensitech-spring-microservice/user-service') {
+
+                sh '''
+
+                    docker build -t $IMAGE_NAME:$IMAGE_TAG .
+
+                    docker tag $IMAGE_NAME:$IMAGE_TAG $IMAGE_NAME:latest
+
+                '''
+
+            }
+
+        }
+
+    }
+
+    stage('Login to Docker Hub') {
+
+        steps {
+
+            withCredentials([usernamePassword(
+
+                credentialsId: 'dockerhub-credentials',
+
+                usernameVariable: 'DOCKERHUB_USERNAME',
+
+                passwordVariable: 'DOCKERHUB_PASSWORD'
+
+            )]) {
+
+                sh '''
+
+                    echo "$DOCKERHUB_PASSWORD" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
+
+                '''
+
+            }
+
+        }
+
+    }
+
+    stage('Push Docker Image') {
+
+        steps {
+
+            sh '''
+
+                docker push $IMAGE_NAME:$IMAGE_TAG
+
+                docker push $IMAGE_NAME:latest
+
+            '''
+
+        }
+
+    }
+
+}
+
+post {
+
+    always {
+
+        archiveArtifacts artifacts: 'ensitech-spring-microservice/user-service/target/*.jar', fingerprint: true
+
+        cleanWs()
+
+    }
+
+    success {
+
+        echo 'Backend pipeline completed successfully.'
+
+    }
+
+    failure {
+
+        echo 'Backend pipeline failed.'
+
+    }
+
+}
 
 }
