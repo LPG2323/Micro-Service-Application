@@ -30,13 +30,9 @@ pipeline {
 
                 dir('ensitech-spring-microservice/user-service') {
 
-                    sh '''
+                    sh 'chmod +x ../mvnw'
 
-                        chmod +x ../mvnw
-
-                        ../mvnw clean package -DskipTests
-
-                    '''
+                    sh '../mvnw clean package -DskipTests'
 
                 }
 
@@ -66,19 +62,7 @@ pipeline {
 
                     withSonarQubeEnv('sonarqube-server') {
 
-                        sh '''
-
-                            ../mvnw sonar:sonar \
-
-                            -Dsonar.projectKey=user-service \
-
-                            -Dsonar.projectName=user-service \
-
-                            -Dsonar.host.url=$SONAR_HOST_URL \
-
-                            -Dsonar.login=$SONAR_AUTH_TOKEN
-
-                        '''
+                        sh '../mvnw sonar:sonar -Dsonar.projectKey=user-service -Dsonar.projectName=user-service -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.login=$SONAR_AUTH_TOKEN'
 
                     }
 
@@ -94,13 +78,9 @@ pipeline {
 
                 dir('ensitech-spring-microservice/user-service') {
 
-                    sh '''
+                    sh 'docker build -t $IMAGE_NAME:$IMAGE_TAG .'
 
-                        docker build -t $IMAGE_NAME:$IMAGE_TAG .
-
-                        docker tag $IMAGE_NAME:$IMAGE_TAG $IMAGE_NAME:latest
-
-                    '''
+                    sh 'docker tag $IMAGE_NAME:$IMAGE_TAG $IMAGE_NAME:latest'
 
                 }
 
@@ -122,11 +102,7 @@ pipeline {
 
                 )]) {
 
-                    sh '''
-
-                        echo "$DOCKERHUB_PASSWORD" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
-
-                    '''
+                    sh 'echo "$DOCKERHUB_PASSWORD" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin'
 
                 }
 
@@ -138,13 +114,9 @@ pipeline {
 
             steps {
 
-                sh '''
+                sh 'docker push $IMAGE_NAME:$IMAGE_TAG'
 
-                    docker push $IMAGE_NAME:$IMAGE_TAG
-
-                    docker push $IMAGE_NAME:latest
-
-                '''
+                sh 'docker push $IMAGE_NAME:latest'
 
             }
 
