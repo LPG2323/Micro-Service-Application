@@ -1,4 +1,6 @@
-agent any
+pipeline { 
+
+    agent any
 
 environment {
 
@@ -159,5 +161,8 @@ post {
         echo 'Discovery-service pipeline failed.'
 
     }
+
+}
+
 
 }
