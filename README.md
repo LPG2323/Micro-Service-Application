@@ -8,6 +8,12 @@ The objective is to design and implement an end-to-end CI/CD pipeline for a micr
 
 ---
 
+## Architecture
+
+![CI/CD Pipeline](images/pipeline.png)
+
+---
+
 ## Technologies
 
 - Jenkins
