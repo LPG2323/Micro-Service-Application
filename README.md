@@ -1,4 +1,4 @@
-# Micro-Service Application
+# CI/CD Pipeline for a Microservices Application
 
 ## Overview
 
