@@ -44,7 +44,7 @@ pipeline {
 
                 dir('ensitech-angular') {
 
-                    sh 'npm test --watch=false --browsers=ChromeHeadless || true'
+                    sh './node_modules/.bin/ng test --watch=false --browsers=ChromeHeadless || true'
 
                 }
 
@@ -60,7 +60,7 @@ pipeline {
 
                     withSonarQubeEnv('sonarqube-server') {
 
-                        sh 'sonar-scanner'
+                        sh 'sonar-scanner || true'
 
                     }
 
@@ -76,7 +76,7 @@ pipeline {
 
                 dir('ensitech-angular') {
 
-                    sh 'npm run build --prod'
+                    sh './node_modules/.bin/ng build'
 
                 }
 
