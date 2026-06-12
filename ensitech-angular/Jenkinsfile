@@ -60,7 +60,7 @@ pipeline {
 
                     withSonarQubeEnv('sonarqube-server') {
 
-                        sh 'sonar-scanner || true'
+                        sh 'sonar-scanner'
 
                     }
 
