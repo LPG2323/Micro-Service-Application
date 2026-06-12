@@ -1,81 +1,173 @@
 pipeline {
+
     agent any
 
     environment {
-        IMAGE_NAME = 'your-dockerhub-username/ensitech-angular'
+
+        IMAGE_NAME = 'maitrelpg/ensitech-frontend'
+
         IMAGE_TAG = "${BUILD_NUMBER}"
+
     }
 
     stages {
 
         stage('Checkout Code') {
+
             steps {
+
+                deleteDir()
+
                 checkout scm
+
             }
+
         }
 
         stage('Install Dependencies') {
+
             steps {
-                sh 'npm install'
+
+                dir('ensitech-angular') {
+
+                    sh 'npm install --legacy-peer-deps'
+
+                }
+
             }
+
         }
 
         stage('Run Tests') {
+
             steps {
-                sh 'npm test --watch=false --browsers=ChromeHeadless || true'
+
+                dir('ensitech-angular') {
+
+                    sh 'npm test --watch=false --browsers=ChromeHeadless || true'
+
+                }
+
             }
+
+        }
+
+        stage('SonarQube Analysis') {
+
+            steps {
+
+                dir('ensitech-angular') {
+
+                    withSonarQubeEnv('sonarqube-server') {
+
+                        sh 'sonar-scanner'
+
+                    }
+
+                }
+
+            }
+
         }
 
         stage('Build Angular App') {
+
             steps {
-                sh 'npm run build --prod'
+
+                dir('ensitech-angular') {
+
+                    sh 'npm run build --prod'
+
+                }
+
             }
+
         }
 
         stage('Build Docker Image') {
+
             steps {
-                sh '''
-                    docker build -t $IMAGE_NAME:$IMAGE_TAG .
-                    docker tag $IMAGE_NAME:$IMAGE_TAG $IMAGE_NAME:latest
-                '''
+
+                dir('ensitech-angular') {
+
+                    sh '''
+
+                        docker build -t $IMAGE_NAME:$IMAGE_TAG .
+
+                        docker tag $IMAGE_NAME:$IMAGE_TAG $IMAGE_NAME:latest
+
+                    '''
+
+                }
+
             }
+
         }
 
         stage('Login to Docker Hub') {
+
             steps {
+
                 withCredentials([usernamePassword(
+
                     credentialsId: 'dockerhub-credentials',
+
                     usernameVariable: 'DOCKERHUB_USERNAME',
+
                     passwordVariable: 'DOCKERHUB_PASSWORD'
+
                 )]) {
+
                     sh '''
+
                         echo "$DOCKERHUB_PASSWORD" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
+
                     '''
+
                 }
+
             }
+
         }
 
         stage('Push Docker Image') {
+
             steps {
+
                 sh '''
+
                     docker push $IMAGE_NAME:$IMAGE_TAG
+
                     docker push $IMAGE_NAME:latest
+
                 '''
+
             }
+
         }
+
     }
 
     post {
+
         always {
+
             cleanWs()
+
         }
 
         success {
+
             echo 'Frontend pipeline completed successfully.'
+
         }
 
         failure {
+
             echo 'Frontend pipeline failed.'
+
         }
+
     }
+
 }
